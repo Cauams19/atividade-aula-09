@@ -1,8 +1,17 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
 describe('App', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('shows empty history state initially', () => {
+    render(<App />)
+    expect(screen.getByTestId('history-empty')).toBeInTheDocument()
+  })
+
   it('renders app title', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: /CommitGen/i })).toBeInTheDocument()
@@ -95,8 +104,44 @@ describe('App', () => {
     await user.type(screen.getByLabelText(/Descrição/i), 'add history test')
     await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
 
-    expect(await screen.findByTestId('history-count')).toHaveTextContent(
-      /1 mensagem salva/i,
-    )
+    const historyList = await screen.findByTestId('history-list')
+    expect(
+      within(historyList).getByText(/feat: add history test/i),
+    ).toBeInTheDocument()
+  })
+
+  it('reuses history entry into the form', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const { vi } = await import('vitest')
+    const user = userEvent.setup()
+    const scrollTo = vi.fn()
+    vi.stubGlobal('scrollTo', scrollTo)
+
+    const storage = new Map<string, string>()
+    const memoryStorage = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+      removeItem: (key: string) => storage.delete(key),
+      clear: () => storage.clear(),
+      key: () => null,
+      length: storage.size,
+    }
+    vi.stubGlobal('localStorage', memoryStorage)
+    vi.stubGlobal('window', { localStorage: memoryStorage, scrollTo })
+
+    render(<App />)
+    await user.selectOptions(screen.getByLabelText(/Tipo/i), 'fix')
+    await user.type(screen.getByLabelText(/Escopo/i), 'api')
+    await user.type(screen.getByLabelText(/Descrição/i), 'patch endpoint')
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+    await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
+
+    await user.clear(screen.getByLabelText(/Descrição/i))
+    await user.click(screen.getByRole('button', { name: /Reutilizar/i }))
+
+    expect(screen.getByLabelText(/Tipo/i)).toHaveValue('fix')
+    expect(screen.getByLabelText(/Escopo/i)).toHaveValue('api')
+    expect(screen.getByLabelText(/Descrição/i)).toHaveValue('patch endpoint')
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
   })
 })

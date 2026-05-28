@@ -1,14 +1,33 @@
 import { CommitForm } from '@/components/CommitForm'
 import { CommitPreview } from '@/components/CommitPreview'
 import { CopyButton } from '@/components/CopyButton'
+import { HistoryList } from '@/components/HistoryList'
 import { StorageBanner } from '@/components/StorageBanner'
 import { useCommitForm } from '@/hooks/useCommitForm'
 import { useHistory } from '@/hooks/useHistory'
+import type { HistoryEntry } from '@/types/commit'
 
 function App() {
-  const { input, errors, preview, valid, setType, setScope, setDescription } =
-    useCommitForm()
+  const {
+    input,
+    errors,
+    preview,
+    valid,
+    setType,
+    setScope,
+    setDescription,
+    setInputValues,
+  } = useCommitForm()
   const { entries, storageAvailable, appendFromCopy } = useHistory()
+
+  const handleReuse = (entry: HistoryEntry) => {
+    setInputValues({
+      type: entry.type,
+      scope: entry.scope,
+      description: entry.description,
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50">
@@ -59,20 +78,7 @@ function App() {
         aria-label="Histórico de commits"
       >
         <h2 className="mb-4 text-lg font-semibold">Histórico</h2>
-        {entries.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Nenhum commit gerado ainda.
-          </p>
-        ) : (
-          <p
-            className="text-sm text-slate-600 dark:text-slate-400"
-            data-testid="history-count"
-          >
-            {entries.length}{' '}
-            {entries.length === 1 ? 'mensagem salva' : 'mensagens salvas'}{' '}
-            localmente.
-          </p>
-        )}
+        <HistoryList entries={entries} onReuse={handleReuse} />
       </section>
     </div>
   )
