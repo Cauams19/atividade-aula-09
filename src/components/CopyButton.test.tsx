@@ -38,6 +38,34 @@ describe('CopyButton', () => {
     })
   })
 
+  it('calls onCopySuccess after successful copy', async () => {
+    const user = userEvent.setup()
+    const onCopySuccess = vi.fn()
+
+    render(<CopyButton text="feat: ok" onCopySuccess={onCopySuccess} />)
+    await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
+
+    await waitFor(() => {
+      expect(onCopySuccess).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('does not call onCopySuccess when copy fails', async () => {
+    const user = userEvent.setup()
+    const onCopySuccess = vi.fn()
+    mockCopyToClipboard.mockRejectedValue(
+      new ClipboardError('Não foi possível copiar.'),
+    )
+
+    render(<CopyButton text="feat: fail" onCopySuccess={onCopySuccess} />)
+    await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('copy-feedback')).toHaveTextContent(/Não foi possível/i)
+    })
+    expect(onCopySuccess).not.toHaveBeenCalled()
+  })
+
   it('announces error when clipboard fails', async () => {
     const user = userEvent.setup()
     mockCopyToClipboard.mockRejectedValue(

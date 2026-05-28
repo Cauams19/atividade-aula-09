@@ -72,4 +72,31 @@ describe('App', () => {
     expect(writeText).toHaveBeenCalledWith('feat: add login form')
     expect(await screen.findByTestId('copy-feedback')).toHaveTextContent(/copiada/i)
   })
+
+  it('saves to history after successful copy', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const { vi } = await import('vitest')
+    const user = userEvent.setup()
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+
+    const storage = new Map<string, string>()
+    const memoryStorage = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+      removeItem: (key: string) => storage.delete(key),
+      clear: () => storage.clear(),
+      key: () => null,
+      length: storage.size,
+    }
+    vi.stubGlobal('localStorage', memoryStorage)
+    vi.stubGlobal('window', { localStorage: memoryStorage })
+
+    render(<App />)
+    await user.type(screen.getByLabelText(/Descrição/i), 'add history test')
+    await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
+
+    expect(await screen.findByTestId('history-count')).toHaveTextContent(
+      /1 mensagem salva/i,
+    )
+  })
 })

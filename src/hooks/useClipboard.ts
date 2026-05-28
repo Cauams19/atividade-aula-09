@@ -20,7 +20,7 @@ export function useClipboard() {
   useEffect(() => clearResetTimer, [clearResetTimer])
 
   const copy = useCallback(
-    async (text: string) => {
+    async (text: string): Promise<boolean> => {
       clearResetTimer()
       setStatus('idle')
       setFeedbackMessage('')
@@ -33,6 +33,7 @@ export function useClipboard() {
           setStatus('idle')
           setFeedbackMessage('')
         }, SUCCESS_RESET_MS)
+        return true
       } catch (error) {
         setStatus('error')
         setFeedbackMessage(
@@ -40,6 +41,7 @@ export function useClipboard() {
             ? error.message
             : 'Falha ao copiar. Tente selecionar o preview manualmente.',
         )
+        return false
       }
     },
     [clearResetTimer],
