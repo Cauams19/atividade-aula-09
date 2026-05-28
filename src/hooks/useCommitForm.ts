@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { buildCommitMessage } from '@/lib/buildCommitMessage'
 import { validateCommitForm } from '@/lib/validateCommitForm'
 import {
   DEFAULT_COMMIT_FORM,
@@ -10,6 +11,8 @@ export function useCommitForm(initial: CommitFormInput = DEFAULT_COMMIT_FORM) {
   const [input, setInput] = useState<CommitFormInput>(initial)
 
   const validation = useMemo(() => validateCommitForm(input), [input])
+
+  const preview = useMemo(() => buildCommitMessage(input), [input])
 
   const setType = useCallback((type: CommitType) => {
     setInput((prev) => ({ ...prev, type }))
@@ -35,6 +38,7 @@ export function useCommitForm(initial: CommitFormInput = DEFAULT_COMMIT_FORM) {
     input,
     errors: validation.errors,
     valid: validation.valid,
+    preview,
     setType,
     setScope,
     setDescription,

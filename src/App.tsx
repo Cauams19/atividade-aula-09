@@ -1,8 +1,10 @@
 import { CommitForm } from '@/components/CommitForm'
+import { CommitPreview } from '@/components/CommitPreview'
 import { useCommitForm } from '@/hooks/useCommitForm'
 
 function App() {
-  const { input, errors, setType, setScope, setDescription } = useCommitForm()
+  const { input, errors, preview, setType, setScope, setDescription } =
+    useCommitForm()
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50">
@@ -32,12 +34,12 @@ function App() {
             onDescriptionChange={setDescription}
           />
 
-          <aside
-            className="mt-8 rounded-lg border border-dashed border-slate-300 bg-slate-100/80 p-6 text-center text-sm text-slate-500 lg:mt-0 dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
-            aria-hidden="true"
-          >
-            Preview da mensagem — Story 1.3
-          </aside>
+          <div className="mt-8 lg:mt-0">
+            <CommitPreview
+              message={preview.message}
+              warnings={preview.warnings}
+            />
+          </div>
         </div>
       </main>
 
