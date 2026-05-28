@@ -8,8 +8,21 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: /CommitGen/i })).toBeInTheDocument()
   })
 
-  it('renders placeholder message', () => {
+  it('renders commit form', () => {
     render(<App />)
-    expect(screen.getByText(/em construção/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tipo/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Escopo/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Descrição/i)).toBeInTheDocument()
+  })
+
+  it('shows validation error for short description', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+
+    render(<App />)
+    const description = screen.getByLabelText(/Descrição/i)
+
+    await user.type(description, 'ab')
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Mínimo 3/)
   })
 })
