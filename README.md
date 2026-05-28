@@ -1,5 +1,7 @@
 # atividade-aula-09 — CommitGen
 
+[![Release](https://img.shields.io/github/v/release/Cauams19/atividade-aula-09)](https://github.com/Cauams19/atividade-aula-09/releases)
+
 Gerador de mensagens de commit no padrão [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## Requisitos
