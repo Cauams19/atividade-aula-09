@@ -1,0 +1,40 @@
+schema: 1
+story: '2.2'
+story_title: 'History List UI — Reuse & Recopy'
+gate: PASS
+status_reason: 'List UI, reuse, per-item copy, empty state, and a11y structure verified via automated tests.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2026-05-27T20:35:00Z'
+
+top_issues: []
+waiver: { active: false }
+
+quality_score: 90
+expires: '2026-06-10T20:35:00Z'
+
+evidence:
+  tests_reviewed: 62
+  risks_identified: 1
+  trace:
+    ac_covered: [1, 2, 3, 4, 5]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'No unsafe HTML rendering.'
+  performance:
+    status: PASS
+    notes: 'Client-side sort on ≤50 items.'
+  reliability:
+    status: PASS
+    notes: 'Reuse and copy flows covered in App + component tests.'
+  maintainability:
+    status: CONCERNS
+    notes: 'Keyboard navigation not automated (manual check recommended).'
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Add RTL keyboard navigation test for history actions'
+      refs: ['src/components/HistoryList.test.tsx']
