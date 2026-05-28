@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   appendHistory as persistEntry,
+  clearHistory,
   createHistoryEntry,
   isLocalStorageAvailable,
   loadHistory,
@@ -33,9 +34,21 @@ export function useHistory() {
     [],
   )
 
+  const clearAll = useCallback(() => {
+    if (!isLocalStorageAvailable()) {
+      setStorageAvailable(false)
+      setEntries([])
+      return
+    }
+
+    clearHistory()
+    setEntries([])
+  }, [])
+
   return {
     entries,
     storageAvailable,
     appendFromCopy,
+    clearAll,
   }
 }

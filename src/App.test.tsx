@@ -144,4 +144,35 @@ describe('App', () => {
     expect(screen.getByLabelText(/Descrição/i)).toHaveValue('patch endpoint')
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
   })
+
+  it('clears history after confirmation in dialog', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+
+    const storage = new Map<string, string>()
+    const memoryStorage = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+      removeItem: (key: string) => storage.delete(key),
+      clear: () => storage.clear(),
+      key: () => null,
+      length: storage.size,
+    }
+    vi.stubGlobal('localStorage', memoryStorage)
+    vi.stubGlobal('window', { localStorage: memoryStorage })
+
+    render(<App />)
+    await user.type(screen.getByLabelText(/Descrição/i), 'to be cleared')
+    await user.click(screen.getByRole('button', { name: /Copiar mensagem/i }))
+
+    expect(screen.getByTestId('history-list')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Limpar histórico/i }))
+    expect(screen.getByTestId('clear-history-dialog')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Limpar tudo/i }))
+
+    expect(screen.getByTestId('history-empty')).toBeInTheDocument()
+  })
 })

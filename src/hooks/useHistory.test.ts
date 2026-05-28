@@ -44,4 +44,22 @@ describe('useHistory', () => {
     expect(result.current.entries[0].message).toBe('feat(ui): add button')
     expect(localStorage.getItem(HISTORY_STORAGE_KEY)).toContain('feat(ui): add button')
   })
+
+  it('clears all entries from storage', () => {
+    const { result } = renderHook(() => useHistory())
+
+    act(() => {
+      result.current.appendFromCopy(
+        { type: 'feat', scope: '', description: 'first' },
+        'feat: first',
+      )
+    })
+
+    act(() => {
+      result.current.clearAll()
+    })
+
+    expect(result.current.entries).toEqual([])
+    expect(localStorage.getItem(HISTORY_STORAGE_KEY)).toBeNull()
+  })
 })
