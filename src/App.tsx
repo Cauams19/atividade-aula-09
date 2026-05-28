@@ -1,9 +1,10 @@
 import { CommitForm } from '@/components/CommitForm'
 import { CommitPreview } from '@/components/CommitPreview'
+import { CopyButton } from '@/components/CopyButton'
 import { useCommitForm } from '@/hooks/useCommitForm'
 
 function App() {
-  const { input, errors, preview, setType, setScope, setDescription } =
+  const { input, errors, preview, valid, setType, setScope, setDescription } =
     useCommitForm()
 
   return (
@@ -34,11 +35,12 @@ function App() {
             onDescriptionChange={setDescription}
           />
 
-          <div className="mt-8 lg:mt-0">
+          <div className="mt-8 flex flex-col lg:mt-0">
             <CommitPreview
               message={preview.message}
               warnings={preview.warnings}
             />
+            <CopyButton text={preview.message} disabled={!valid} />
           </div>
         </div>
       </main>
